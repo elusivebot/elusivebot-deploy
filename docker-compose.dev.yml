@@ -1,0 +1,16 @@
+version: '3.8'
+include:
+  - 'docker-compose.base.yml'
+services:
+  direct:
+    image: elusivebot-direct:latest
+    ports:
+      - "8001:8001"
+    container_name: 'elusivebot.direct'
+    environment:
+      - "DIRECT_REDIS_HOST=elusivebot.redis"
+      - "DIRECT_REDIS_PORT=6379"
+      - "DIRECT_LISTEN_PORT=8001"
+      - "DIRECT_LISTEN_HOST=0.0.0.0"
+      - "DIRECT_RABBITMQ_HOST=elusivebot.rabbitmq"
+      - "DIRECT_RABBITMQ_PORT=5672"

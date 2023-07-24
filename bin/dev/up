@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if ! type docker >/dev/null ; then
+    echo "Docker not found!"
+    exit 1
+fi
+
+set -ex
+docker compose --project-name elusivebot-dev --file docker-compose.dev.yml up -d
+
