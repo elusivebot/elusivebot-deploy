@@ -7,10 +7,10 @@ services:
     ports:
       - "8001:8001"
     container_name: 'elusivebot.direct'
+    networks:
+      - kafka
     environment:
-      - "DIRECT_REDIS_HOST=elusivebot.redis"
-      - "DIRECT_REDIS_PORT=6379"
+      - "DIRECT_KAFKA_HOST=elusivebot.kafka"
+      - "DIRECT_KAFKA_PORT=9092"
       - "DIRECT_LISTEN_PORT=8001"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
-      - "DIRECT_RABBITMQ_HOST=elusivebot.rabbitmq"
-      - "DIRECT_RABBITMQ_PORT=5672"

@@ -1,4 +1,9 @@
 #!/bin/bash
 
 set -ex
-mkdir -p /srv/elusivebot/redis/data
+mkdir -p /srv/elusivebot
+
+mkdir -p /srv/elusivebot/kafka
+
+mkdir -p /srv/elusivebot/kafka/data
+chown 1001:1001 /srv/elusivebot/kafka/data
