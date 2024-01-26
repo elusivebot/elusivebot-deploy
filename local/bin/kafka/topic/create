@@ -1,0 +1,12 @@
+#!/bin/sh
+
+KAFKA_VERSION=kafka_2.13-3.6.1
+
+set -ex
+
+cd $KAFKA_VERSION
+
+for topic in "$@"; do
+  bin/kafka-topics.sh --create --topic $topic --bootstrap-server localhost:9092
+done
+
