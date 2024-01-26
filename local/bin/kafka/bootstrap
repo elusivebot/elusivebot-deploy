@@ -1,0 +1,18 @@
+#!/bin/sh
+
+KAFKA_VERSION=kafka_2.13-3.6.1
+
+set -ex
+
+if [ ! -f $KAFKA_VERSION.tgz ] ; then
+  wget https://downloads.apache.org/kafka/3.6.1/$KAFKA_VERSION.tgz
+  tar -zxf $KAFKA_VERSION.tgz
+fi
+
+cd $KAFKA_VERSION
+
+KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
+
+
+
