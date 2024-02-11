@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./kafka/topic/create tcp-output tcp-input
