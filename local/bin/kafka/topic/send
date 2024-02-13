@@ -1,0 +1,9 @@
+#!/bin/sh
+
+KAFKA_VERSION=kafka_2.13-3.6.1
+
+set -ex
+
+cd $KAFKA_VERSION
+
+bin/kafka-console-producer.sh --topic $1 --property parse.key=true --property key.separator=: --bootstrap-server localhost:9092
