@@ -10,7 +10,6 @@ services:
     networks:
       - kafka
     environment:
-      - "DIRECT_KAFKA_HOST=elusivebot.kafka"
-      - "DIRECT_KAFKA_PORT=9092"
+      - "DIRECT_KAFKA_HOST=elusivebot.kafka:9092"
       - "DIRECT_LISTEN_PORT=8001"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
