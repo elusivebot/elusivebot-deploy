@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export BASE_DIR=/srv/elusivebot
+
+set -ex
+sudo mkdir -p $BASE_DIR
+sudo chmod 750 $BASE_DIR
+
+sudo mkdir -p $BASE_DIR/kafka/data
+sudo chown 1001:1001 $BASE_DIR/kafka/data

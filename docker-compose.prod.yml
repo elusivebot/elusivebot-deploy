@@ -1,10 +1,10 @@
-version: '3.8'
 include:
   - 'docker-compose.base.yml'
 services:
   discord:
-    image: elusivebot-discord:latest
+    image: elusivebot/discord:latest
     container_name: 'elusivebot.discord'
+    depends_on: [ kafka ]
     networks:
       - kafka
     environment:
@@ -14,11 +14,12 @@ services:
     env_file:
       - .discord.prod.env
   pattern-match:
-    image: elusivebot-pattern-match:latest
+    image: elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
+    depends_on: [ kafka ]
     networks:
       - kafka
     environment:
-      - "PATTERN_MATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
-      - "PATTERN_MATCH_KAFKA_PRODUCER=messages-output"
-      - "PATTERN_MATCH_KAFKA_CONSUMER=messages-input"
+      - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "PATTERNMATCH_KAFKA_PRODUCER=messages-output"
+      - "PATTERNMATCH_KAFKA_CONSUMER=messages-input"
