@@ -5,6 +5,8 @@ if ! type docker >/dev/null ; then
     exit 1
 fi
 
+export BASE_DIR=$PWD/.deploy
+
 set -ex
 docker compose --project-name elusivebot-dev --file docker-compose.dev.yml up --detach --build
 

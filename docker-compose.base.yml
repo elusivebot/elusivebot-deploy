@@ -1,9 +1,8 @@
-version: '3.8'
 services:
   kafka:
     image: docker.io/bitnami/kafka:3.6
     container_name: elusivebot.kafka
-    nvironment:
+    environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
@@ -15,7 +14,7 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     volumes:
-      - "/srv/elusivebot/kafka/data:/bitnami/kafka"
+      - "${BASE_DIR:?base dir must be set}/kafka/data:/bitnami/kafka"
     networks:
       - kafka
 networks:

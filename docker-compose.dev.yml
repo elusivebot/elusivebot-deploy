@@ -1,15 +1,27 @@
-version: '3.8'
 include:
   - 'docker-compose.base.yml'
 services:
   direct:
-    image: elusivebot-direct:latest
+    image: elusivebot/direct:latest
     ports:
       - "8001:8001"
     container_name: 'elusivebot.direct'
+    depends_on: [ kafka ]
     networks:
       - kafka
     environment:
-      - "DIRECT_KAFKA_HOST=elusivebot.kafka:9092"
+      - "DIRECT_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "DIRECT_KAFKA_PRODUCER=messages-input"
+      - "DIRECT_KAFKA_CONSUMER=images-output"
       - "DIRECT_LISTEN_PORT=8001"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
+  pattern-match:
+    image: elusivebot/pattern-match:latest
+    container_name: 'elusivebot.pattern.match'
+    depends_on: [ kafka ]
+    networks:
+      - kafka
+    environment:
+      - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "PATTERNMATCH_KAFKA_PRODUCER=messages-output"
+      - "PATTERNMATCH_KAFKA_CONSUMER=messages-input"
