@@ -5,5 +5,8 @@ BASE_DIR=$PWD/.deploy
 set -ex
 mkdir -p $BASE_DIR
 
+mkdir -p $BASE_DIR/kafka
+mkdir -p $BASE_DIR/kafka/bin
+cp kafka/bin/*.sh $BASE_DIR/kafka/bin/
 mkdir -p $BASE_DIR/kafka/data
 sudo chown 1001:1001 $BASE_DIR/kafka/data
