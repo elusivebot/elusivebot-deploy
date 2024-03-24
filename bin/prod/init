@@ -6,5 +6,10 @@ set -ex
 sudo mkdir -p $BASE_DIR
 sudo chmod 750 $BASE_DIR
 
+sudo mkdir -p $BASE_DIR/kafka
+sudo mkdir -p $BASE_DIR/kafka/bin
+sudo cp kafka/bin/*.sh $BASE_DIR/kafka/bin/
 sudo mkdir -p $BASE_DIR/kafka/data
 sudo chown 1001:1001 $BASE_DIR/kafka/data
+
+sudo mkdir -p $BASE_DIR/discord
