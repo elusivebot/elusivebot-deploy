@@ -4,22 +4,26 @@ services:
   discord:
     image: elusivebot/discord:latest
     container_name: 'elusivebot.discord'
-    depends_on: [ kafka ]
+    depends_on:
+      kafka:
+        condition: service_healthy
     networks:
       - kafka
     environment:
       - "DISCORD_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
-      - "DISCORD_KAFKA_PRODUCER=messages-input"
-      - "DISCORD_KAFKA_CONSUMER=messages-output"
+      - "DISCORD_KAFKA_PRODUCERTOPIC=messages-input"
+      - "DISCORD_KAFKA_CONSUMERTOPIC=messages-output"
     env_file:
       - .discord.prod.env
   pattern-match:
     image: elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
-    depends_on: [ kafka ]
+    depends_on:
+      kafka:
+        condition: service_healthy
     networks:
       - kafka
     environment:
       - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
-      - "PATTERNMATCH_KAFKA_PRODUCER=messages-output"
-      - "PATTERNMATCH_KAFKA_CONSUMER=messages-input"
+      - "PATTERNMATCH_KAFKA_PRODUCERTOPIC=messages-output"
+      - "PATTERNMATCH_KAFKA_CONSUMERTOPIC=messages-input"
