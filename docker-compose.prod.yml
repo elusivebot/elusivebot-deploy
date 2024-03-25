@@ -13,8 +13,8 @@ services:
       - "DISCORD_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
       - "DISCORD_KAFKA_PRODUCERTOPIC=messages-input"
       - "DISCORD_KAFKA_CONSUMERTOPIC=messages-output"
-    env_file:
-      - .discord.prod.env
+    volumes:
+      - "${BASE_DIR:?base dir must be set}/discord/config:/config"
   pattern-match:
     image: elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'

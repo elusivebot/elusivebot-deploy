@@ -1,17 +1,17 @@
 #!/bin/bash
 
-BASE_DIR=/srv/elusivebot/discord
+BASE_DIR=/srv/elusivebot/discord/config
 
 set -ex
 
-sudo touch $BASE_DIR/discord_token.yml
-sudo chmod 660 $BASE_DIR/discord_token.yml
+sudo touch $BASE_DIR/discord-service.yml
+sudo chmod 640 $BASE_DIR/discord-service.yml
 
 read -s -p "Discord token: " token
 
 set +x
 
-cat << EOF | sudo tee $BASE_DIR/discord_token.yml >/dev/null
+cat << EOF | sudo tee $BASE_DIR/discord-service.yml >/dev/null
 discord:
   discord_token: "$token"
 EOF

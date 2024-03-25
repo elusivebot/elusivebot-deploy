@@ -13,3 +13,4 @@ sudo mkdir -p $BASE_DIR/kafka/data
 sudo chown 1001:1001 $BASE_DIR/kafka/data
 
 sudo mkdir -p $BASE_DIR/discord
+sudo mkdir -p $BASE_DIR/discord/config

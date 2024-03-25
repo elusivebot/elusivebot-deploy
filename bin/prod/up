@@ -8,5 +8,5 @@ fi
 export BASE_DIR=/srv/elusivebot
 
 set -ex
-sudo docker compose --project-name elusivebot --file docker-compose.prod.yml up --detach --build
+sudo --preserve-env=BASE_DIR docker compose --project-name elusivebot --file docker-compose.prod.yml up --detach --build
 
