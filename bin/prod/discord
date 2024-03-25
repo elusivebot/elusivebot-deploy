@@ -11,8 +11,8 @@ read -s -p "Discord token: " token
 
 set +x
 
-echo << EOF | sudo tee $BASE_DIR/discord_token.yml >/dev/null
+cat << EOF | sudo tee $BASE_DIR/discord_token.yml >/dev/null
 discord:
   discord_token: "$token"
-EOF | sudo tee $BASE_DIR/discord_token.yml >/dev/null
+EOF
 
