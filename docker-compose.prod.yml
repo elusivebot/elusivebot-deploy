@@ -2,7 +2,7 @@ include:
   - 'docker-compose.base.yml'
 services:
   discord:
-    image: elusivebot/discord:latest
+    image: docker.degrendel.com/elusivebot/discord:latest
     container_name: 'elusivebot.discord'
     depends_on:
       kafka:
@@ -16,7 +16,7 @@ services:
     volumes:
       - "${BASE_DIR:?base dir must be set}/discord/config:/config"
   pattern-match:
-    image: elusivebot/pattern-match:latest
+    image: docker.degrendel.com/elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
     depends_on:
       kafka:

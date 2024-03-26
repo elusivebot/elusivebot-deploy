@@ -2,7 +2,7 @@ include:
   - 'docker-compose.base.yml'
 services:
   direct:
-    image: elusivebot/direct:latest
+    image: docker.degrendel.com/elusivebot/direct:latest
     ports:
       - "8001:8001"
     container_name: 'elusivebot.direct'
@@ -18,7 +18,7 @@ services:
       - "DIRECT_LISTEN_PORT=8001"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
   pattern-match:
-    image: elusivebot/pattern-match:latest
+    image: docker.degrendel.com/elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
     depends_on:
       kafka:
