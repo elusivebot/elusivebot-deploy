@@ -4,6 +4,7 @@ services:
   discord:
     image: docker.degrendel.com/elusivebot/discord:latest
     container_name: 'elusivebot.discord'
+    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
@@ -18,6 +19,7 @@ services:
   pattern-match:
     image: docker.degrendel.com/elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
+    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
@@ -27,3 +29,10 @@ services:
       - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
       - "PATTERNMATCH_KAFKA_PRODUCERTOPIC=messages-output"
       - "PATTERNMATCH_KAFKA_CONSUMERTOPIC=messages-input"
+  watchtower:
+    image: containrrr/watchtower
+    container_name: "elusivebot.watchtower"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 60
