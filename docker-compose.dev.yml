@@ -31,3 +31,17 @@ services:
       - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
       - "PATTERNMATCH_KAFKA_PRODUCERTOPIC=messages-output"
       - "PATTERNMATCH_KAFKA_CONSUMERTOPIC=messages-input"
+  docs:
+    image: docker.degrendel.com/elusivebot/docs:latest
+    container_name: "elusivebot.docs"
+    ports:
+     - "8080:8080"
+    environment:
+     - NGINX_PORT=8080
+  watchtower:
+    image: containrrr/watchtower
+    container_name: "elusivebot.watchtower"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 60
