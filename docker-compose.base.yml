@@ -16,7 +16,7 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     volumes:
       - "${BASE_DIR:?base dir must be set}/kafka/data:/bitnami/kafka"
-      - "${BASE_DIR}/kafka/bin//run-init-kafka-topics.sh:/docker-entrypoint-initdb.d/run-init-kafka-topics.sh:ro"
+      - "${BASE_DIR}/kafka/bin/run-init-kafka-topics.sh:/docker-entrypoint-initdb.d/run-init-kafka-topics.sh:ro"
       - "${BASE_DIR}/kafka/bin/init-kafka-topics.sh:/init-kafka-topics.sh:ro"
     healthcheck:
       test: /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list

@@ -18,6 +18,26 @@ services:
       - "DIRECT_KAFKA_CONSUMERTOPIC=messages-output"
       - "DIRECT_LISTEN_PORT=8001"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
+  http:
+    image: docker.degrendel.com/elusivebot/http:latest
+    ports:
+      - "8002:8002"
+    container_name: 'elusivebot.http'
+    # restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka
+    environment:
+      - "HTTP_LISTEN=0.0.0.0"
+      - "HTTP_PORT=8002"
+      - "SESSION_SECRET=keyboard cat"
+      - "KAFKA_CLIENT_ID=http"
+      - "KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "KAFKA_PRODUCER_TOPIC=http-input"
+      - "KAFKA_CONSUMER_TOPIC=http-output"
+
   pattern-match:
     image: docker.degrendel.com/elusivebot/pattern-match:latest
     container_name: 'elusivebot.pattern.match'
