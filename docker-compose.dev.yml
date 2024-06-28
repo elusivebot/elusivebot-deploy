@@ -1,5 +1,7 @@
 include:
+- path:
   - 'docker-compose.base.yml'
+  - 'override.dev.yml'
 services:
   direct:
     image: docker.degrendel.com/elusivebot/direct:latest
