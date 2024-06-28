@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+
+import argparse
+from collections import namedtuple
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+PackageDefinition = namedtuple('PackageDefinition', ['name', 'dev', 'prod'])
+
+class Package:
+    def __init__(self, definition: PackageDefinition, dev_dir: Path):
+        self.name = definition.name
+        self.definition = definition
+        self.dir = dev_dir / self.name
+        self._build_script = self.dir / 'bin' / 'build'
+        self._image_script = self.dir / 'bin' / 'docker' / 'build'
+
+        self.exists = self.dir.is_dir()
+
+    def build(self):
+        if not self._build_script.is_file():
+            print("Package {} does not have a build script in {}".format(self.name, self._build_script))
+        else:
+            print("Building {} using {}...".format(self.name, self._build_script))
+            subprocess.run(self._build_script, cwd=self.dir, check=True)
+    
+    def image(self):
+        if not self._build_script.is_file():
+            print("Package {} does not have a Docker build script in {}".format(self.name, self._image_script))
+        else:
+            print("Constructing image for {} using {}...".format(self.name, self._image_script))
+            subprocess.run(self._image_script, cwd=self.dir, check=True)
+
+    def print_status(self):
+        print("\t{}: {}".format(self.name, "found" if self.exists else "MISSING"))
+
+class ElusiveBot:
+    def __init__(self, dev_dir: Path):
+        self._packages = {}
+
+        def _define(name, dev=True, prod=True):
+            self._packages[name] = Package(PackageDefinition(name, dev=dev, prod=prod), dev_dir)
+        
+        # Core packages
+        _define("elusivebot-deploy")
+        _define("elusivebot-schema")
+        _define("elusivebot-kotlin-common")
+        _define("elusivebot-pattern-match-behavior")
+
+        # Development only packages
+        _define("elusivebot-direct", prod=False)
+        _define("elusivebot-frontend", prod=False)
+        _define("elusivebot-http", prod=False)
+
+        # Prod only packages
+        _define("elusivebot-discord", dev=False)
+
+        self._dev_dir = dev_dir
+
+        self._dev_missing = []
+        self._prod_missing = []
+
+
+        for package in self._packages.values():
+            if not package.exists:
+                if package.definition.dev:
+                    self._dev_missing.append(package.name)
+                if package.definition.prod:
+                    self._prod_missing.append(package.name)
+
+        self.dev_ready = not self._dev_missing
+        self.prod_ready = not self._prod_missing
+
+    def build_all(self):
+        self.build(packages=self._packages.keys())
+    
+    def build(self, packages):
+        for package in packages:
+            self._packages[package].build()
+
+    def image_all(self):
+        self.image(packages=self._packages.keys())
+
+    def image(self, packages):
+        for package in packages:
+            self._packages[package].image()
+
+    def print_status(self):
+        for package in self._packages.values():
+            package.print_status()
+
+        if not self.dev_ready:
+            print("Missing packages for dev stack", self._dev_missing)
+        if not self.prod_ready:
+            print("Missing packages for prod stack", self._prod_missing)
+
+def main(argv):
+    script_dir = Path(__file__).absolute().parent
+    if str(script_dir) == '/vagrant_bin':
+        dev_dir = Path('/elusivebot')
+    else:
+        dev_dir = Path(script_dir).parent.parent.parent
+
+    parser = argparse.ArgumentParser(description='Core utility script for developing ElusiveBot.')
+
+    parser.add_argument('-d', '--dir', type=Path, nargs=1, help='Set the parent directory of checked out ELB repositories')
+
+    subparser = parser.add_subparsers(dest='command')
+
+    status_parser = subparser.add_parser("status", aliases=['ls'], help='Print status of ElusiveBot packages')
+
+    build_parser = subparser.add_parser("build", aliases=['b'], help='Build ElusiveBot packages')
+    build_parser.add_argument('-a', '--all', action='store_true', help='Build all packages')
+    build_parser.add_argument('target', nargs='*', help='Packages to build')
+
+    image_parser = subparser.add_parser("image", aliases=['i'], help='Construct ElusiveBot Docker images')
+    image_parser.add_argument('-a', '--all', action='store_true', help='Construct all images')
+    image_parser.add_argument('target', nargs='*', help='Images to construct')
+
+    args = parser.parse_args(argv)
+
+    if args.dir:
+        dev_dir = args.dir
+
+    print("Using {} as root ELB directory".format(dev_dir))
+
+    if not dev_dir.is_dir():
+        print("Looking for ELB directory missing or not a directory!")
+        sys.exit(-1)
+
+    elusivebot = ElusiveBot(dev_dir)
+
+    if args.command == 'status':
+        elusivebot.print_status()
+    elif args.command == 'build':
+        if args.all:
+            elusivebot.build_all()
+        else:
+            elusivebot.build(args.target)
+    elif args.command == 'image':
+        if args.all:
+            elusivebot.image_all()
+        else:
+            elusivebot.image(args.target)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
