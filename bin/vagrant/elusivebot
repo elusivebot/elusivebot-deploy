@@ -7,57 +7,84 @@ from pathlib import Path
 import subprocess
 import sys
 
-PackageDefinition = namedtuple('PackageDefinition', ['name', 'dev', 'prod'])
+PackageDefinition = namedtuple('PackageDefinition', ['name', 'dev', 'prod', 'priority'])
 
 class Package:
-    def __init__(self, definition: PackageDefinition, dev_dir: Path):
+    def __init__(self, definition: PackageDefinition, src_dir: Path, working_dir: Path):
         self.name = definition.name
         self.definition = definition
-        self.dir = dev_dir / self.name
-        self._build_script = self.dir / 'bin' / 'build'
-        self._image_script = self.dir / 'bin' / 'docker' / 'build'
+        self.src_dir = src_dir / self.name
+        self.working_dir = working_dir / self.name
+        self._build_script = self.working_dir / 'bin' / 'build'
+        self._deploy_script = self.working_dir / 'bin' / 'deploy'
+        self._init_script = self.src_dir / 'bin' / 'init'
 
-        self.exists = self.dir.is_dir()
+        self.exists = self.src_dir.is_dir()
+       
+    def init(self):
+        if not self.exists:
+            print("Package {} is not checked out!".format(self.name))
+            return False
+        if not self._init_script.is_file():
+            print("Package {} does not have an init script @ {}".format(self.name, self._init_script))
+            return False
+
+        cmd = [str(self._init_script), str(self.working_dir)]
+        print("Initializing {} using '{}'...".format(self.name, " ".join(cmd)))
+        subprocess.run(cmd, cwd=self.src_dir, check=True)
+        return True
 
     def build(self):
+        if not self.exists:
+            print("Package {} is not checked out!".format(self.name))
         if not self._build_script.is_file():
-            print("Package {} does not have a build script in {}".format(self.name, self._build_script))
-        else:
-            print("Building {} using {}...".format(self.name, self._build_script))
-            subprocess.run(self._build_script, cwd=self.dir, check=True)
+            print("Package {} does not have a build script @ {}".format(self.name, self._build_script))
+            return False
+
+        print("Building {} using '{}'...".format(self.name, self._build_script))
+        subprocess.run(self._build_script, cwd=self.working_dir, check=True)
+        return True
     
-    def image(self):
+    def deploy(self):
+        if not self.exists:
+            print("Package {} is not checked out!".format(self.name))
+            return False
         if not self._build_script.is_file():
-            print("Package {} does not have a Docker build script in {}".format(self.name, self._image_script))
-        else:
-            print("Constructing image for {} using {}...".format(self.name, self._image_script))
-            subprocess.run(self._image_script, cwd=self.dir, check=True)
+            print("Package {} does not have a deploy script @ {}".format(self.name, self._deploy_script))
+            return False
+
+        print("Deploying {} using '{}'...".format(self.name, self._image_script))
+        subprocess.run(self._image_script, cwd=self.working_dir, check=True)
+        return True
 
     def print_status(self):
         print("\t{}: {}".format(self.name, "found" if self.exists else "MISSING"))
 
 class ElusiveBot:
-    def __init__(self, dev_dir: Path):
+    def __init__(self, src_dir: Path, working_dir: Path):
         self._packages = {}
 
-        def _define(name, dev=True, prod=True):
-            self._packages[name] = Package(PackageDefinition(name, dev=dev, prod=prod), dev_dir)
+        def _define(name, priority=2, dev=True, prod=True):
+            self._packages[name] = Package(PackageDefinition(name, priority=priority, dev=dev, prod=prod), src_dir, working_dir)
         
-        # Core packages
+        # Core and utility packages
         _define("elusivebot-deploy")
-        _define("elusivebot-schema")
-        _define("elusivebot-kotlin-common")
+        _define("elusivebot-schema", priority=0)
+        _define("elusivebot-kotlin-common", priority=1)
+        
+        # Common services
         _define("elusivebot-pattern-match-behavior")
 
-        # Development only packages
+        # Development only services
         _define("elusivebot-direct", prod=False)
         _define("elusivebot-frontend", prod=False)
         _define("elusivebot-http", prod=False)
 
-        # Prod only packages
+        # Prod only services
         _define("elusivebot-discord", dev=False)
 
-        self._dev_dir = dev_dir
+        self._src_dir = src_dir
+        self._working_dir = working_dir
 
         self._dev_missing = []
         self._prod_missing = []
@@ -80,12 +107,19 @@ class ElusiveBot:
         for package in packages:
             self._packages[package].build()
 
-    def image_all(self):
-        self.image(packages=self._packages.keys())
+    def deploy_all(self):
+        self.deploy(packages=self._packages.keys())
 
-    def image(self, packages):
+    def deploy(self, packages):
         for package in packages:
-            self._packages[package].image()
+            self._packages[package].deploy()
+            
+    def init_all(self):
+        self.init(packages=self._packages.keys())
+    
+    def init(self, packages):
+        for package in packages:
+            self._packages[package].init()
 
     def print_status(self):
         for package in self._packages.values():
@@ -99,9 +133,10 @@ class ElusiveBot:
 def main(argv):
     script_dir = Path(__file__).absolute().parent
     if str(script_dir) == '/vagrant_bin':
-        dev_dir = Path('/elusivebot')
+        src_dir = Path('/elusivebot')
+        working_dir = Path('/build')
     else:
-        dev_dir = Path(script_dir).parent.parent.parent
+        src_dir = working_dir = Path(script_dir).parent.parent.parent
 
     parser = argparse.ArgumentParser(description='Core utility script for developing ElusiveBot.')
 
@@ -111,29 +146,40 @@ def main(argv):
 
     status_parser = subparser.add_parser("status", aliases=['ls'], help='Print status of ElusiveBot packages')
 
+    init_parser = subparser.add_parser("init", aliases=['i'], help='Initialize ElusiveBot packages')
+    init_parser.add_argument('-a', '--all', action='store_true', help='Init all packages')
+    init_parser.add_argument('target', nargs='*', help='Packages to initialize')
+
     build_parser = subparser.add_parser("build", aliases=['b'], help='Build ElusiveBot packages')
     build_parser.add_argument('-a', '--all', action='store_true', help='Build all packages')
     build_parser.add_argument('target', nargs='*', help='Packages to build')
 
-    image_parser = subparser.add_parser("image", aliases=['i'], help='Construct ElusiveBot Docker images')
-    image_parser.add_argument('-a', '--all', action='store_true', help='Construct all images')
-    image_parser.add_argument('target', nargs='*', help='Images to construct')
+    deploy_parser = subparser.add_parser("deploy", aliases=['d'], help='Deploy ElusiveBot packages')
+    deploy_parser.add_argument('-a', '--all', action='store_true', help='Deploy all packages')
+    deploy_parser.add_argument('target', nargs='*', help='Packages to deploy')
 
     args = parser.parse_args(argv)
 
     if args.dir:
         dev_dir = args.dir
 
-    print("Using {} as root ELB directory".format(dev_dir))
+    print("Using {} as ELB source directory".format(src_dir))
+    if src_dir != working_dir:
+        print("Using {} as ELB working directory".format(working_dir))
 
-    if not dev_dir.is_dir():
-        print("Looking for ELB directory missing or not a directory!")
+    if not src_dir.is_dir():
+        print("ELB source directory missing or not a directory!")
         sys.exit(-1)
 
-    elusivebot = ElusiveBot(dev_dir)
+    elusivebot = ElusiveBot(src_dir, working_dir)
 
     if args.command == 'status':
         elusivebot.print_status()
+    elif args.command == 'init':
+        if args.all:
+            elusivebot.init_all()
+        else:
+            elusivebot.init(args.target)
     elif args.command == 'build':
         if args.all:
             elusivebot.build_all()
