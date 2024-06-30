@@ -8,7 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 apt-get upgrade -y
-apt-get install -y curl git dirmngr gpg gawk unzip jq ca-certificates
+apt-get install -y curl git dirmngr gpg gawk unzip jq ca-certificates graphviz tree silversearcher-ag bat
 apt-get remove -y docker.io docker-doc docker-compose podman-docker containerd runc
 
 sudo -H -u vagrant -i -- <<EOF
@@ -40,6 +40,9 @@ echo \
 apt-get update
 
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+mkdir /build
+chown vagrant:vagrant /build
 SCRIPT
 
 Vagrant.configure("2") do |config|
