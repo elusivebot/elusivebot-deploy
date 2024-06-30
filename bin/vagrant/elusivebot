@@ -20,7 +20,7 @@ class Package:
         self._init_script = self.src_dir / 'bin' / 'init'
 
         self.exists = self.src_dir.is_dir()
-       
+
     def init(self):
         if not self.exists:
             print("Package {} is not checked out!".format(self.name))
@@ -44,7 +44,7 @@ class Package:
         print("Building {} using '{}'...".format(self.name, self._build_script))
         subprocess.run(self._build_script, cwd=self.working_dir, check=True)
         return True
-    
+
     def deploy(self):
         if not self.exists:
             print("Package {} is not checked out!".format(self.name))
@@ -66,12 +66,12 @@ class ElusiveBot:
 
         def _define(name, priority=2, dev=True, prod=True):
             self._packages[name] = Package(PackageDefinition(name, priority=priority, dev=dev, prod=prod), src_dir, working_dir)
-        
+
         # Core and utility packages
         _define("elusivebot-deploy")
         _define("elusivebot-schema", priority=0)
         _define("elusivebot-kotlin-common", priority=1)
-        
+
         # Common services
         _define("elusivebot-pattern-match-behavior")
 
@@ -102,7 +102,7 @@ class ElusiveBot:
 
     def build_all(self):
         self.build(packages=self._packages.keys())
-    
+
     def build(self, packages):
         for package in packages:
             self._packages[package].build()
@@ -113,10 +113,10 @@ class ElusiveBot:
     def deploy(self, packages):
         for package in packages:
             self._packages[package].deploy()
-            
+
     def init_all(self):
         self.init(packages=self._packages.keys())
-    
+
     def init(self, packages):
         for package in packages:
             self._packages[package].init()
@@ -158,6 +158,14 @@ def main(argv):
     deploy_parser.add_argument('-a', '--all', action='store_true', help='Deploy all packages')
     deploy_parser.add_argument('target', nargs='*', help='Packages to deploy')
 
+    docs_parser = subparser.add_parser('docs', help='Manage ElusiveBot common documentation')
+
+    docker_parser = subparser.add_parser('docker', help='Manage the dev Docker stack')
+    docker_subparser = docker_parser.add_subparsers(dest='docker')
+
+    up_parser = docker_subparser.add_parser('up', help='Launch the dev stack')
+    down_parser = docker_subparser.add_parser('down', help='Termiante the dev stack')
+
     args = parser.parse_args(argv)
 
     if args.dir:
@@ -190,6 +198,17 @@ def main(argv):
             elusivebot.deploy_all()
         else:
             elusivebot.deploy(args.target)
+    elif args.command == 'docs':
+        raise NotImplementedError("Docs command")
+    elif args.command == 'docker':
+        if args.docker == 'up':
+            subprocess.run('./bin/dev/up', cwd=working_dir / 'elusivebot-deploy', check=True)
+        elif args.docker == 'down':
+            subprocess.run('./bin/dev/down', cwd=working_dir / 'elusivebot-deploy', check=True)
+        else:
+            raise NotImplementedError("Docker subcommand {}".format(args.docker))
+    else:
+        raise NotImplementedError("Unhandled command {}".format(args.command))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
