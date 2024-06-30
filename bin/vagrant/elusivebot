@@ -159,12 +159,20 @@ def main(argv):
     deploy_parser.add_argument('target', nargs='*', help='Packages to deploy')
 
     docs_parser = subparser.add_parser('docs', help='Manage ElusiveBot common documentation')
+    docs_subparser = docs_parser.add_subparsers(dest='docs')
+
+    serve_parser = docs_subparser.add_parser('serve', help='Launch the documentation website')
+    serve_parser.add_argument('-p', '--port', type=int, default=8000, help='Port to listen on, default is 8000')
+
+    docs_init_parser = docs_subparser.add_parser('init', help='Initialize the docs repo')
+
+    docs_diagrams_parser = docs_subparser.add_parser('diagrams', help='Build documentation diagrams')
 
     docker_parser = subparser.add_parser('docker', help='Manage the dev Docker stack')
     docker_subparser = docker_parser.add_subparsers(dest='docker')
 
     up_parser = docker_subparser.add_parser('up', help='Launch the dev stack')
-    down_parser = docker_subparser.add_parser('down', help='Termiante the dev stack')
+    down_parser = docker_subparser.add_parser('down', help='Terminate the dev stack')
 
     args = parser.parse_args(argv)
 
@@ -199,7 +207,15 @@ def main(argv):
         else:
             elusivebot.deploy(args.target)
     elif args.command == 'docs':
-        raise NotImplementedError("Docs command")
+        if args.docs == 'serve':
+            cmd = ['./bin/serve', '-a', "0.0.0.0:{}".format(args.port)]
+            subprocess.run(cmd, cwd=working_dir / 'elusivebot-docs', check=True)
+        elif args.docs == 'init':
+            subprocess.run(['./bin/init', working_dir / 'elusivebot-docs'], cwd=src_dir / 'elusivebot-docs', check=True)
+        elif args.docs == 'diagrams':
+            subprocess.run('./bin/build-diagrams', cwd=working_dir / 'elusivebot-docs', check=True)
+        else:
+            raise NotImplementedError("Docs subcommand {}".format(args.docs))
     elif args.command == 'docker':
         if args.docker == 'up':
             subprocess.run('./bin/dev/up', cwd=working_dir / 'elusivebot-deploy', check=True)
