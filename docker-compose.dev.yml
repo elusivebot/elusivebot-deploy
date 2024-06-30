@@ -25,7 +25,7 @@ services:
     ports:
       - "8002:8002"
     container_name: 'elusivebot.http'
-    # restart: unless-stopped
+    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
@@ -57,22 +57,8 @@ services:
   frontend:
     image: docker.degrendel.com/elusivebot/frontend:latest
     container_name: 'elusivebot.frontend'
-    # restart: unless-stopped
+    restart: unless-stopped
     depends_on:
       http:
         condition: service_started
 
-  docs:
-    image: docker.degrendel.com/elusivebot/docs:latest
-    container_name: "elusivebot.docs"
-    ports:
-     - "8080:8080"
-    environment:
-     - NGINX_PORT=8080
-  watchtower:
-    image: containrrr/watchtower
-    container_name: "elusivebot.watchtower"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 60
