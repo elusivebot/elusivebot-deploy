@@ -53,8 +53,8 @@ class Package:
             print("Package {} does not have a deploy script @ {}".format(self.name, self._deploy_script))
             return False
 
-        print("Deploying {} using '{}'...".format(self.name, self._image_script))
-        subprocess.run(self._image_script, cwd=self.working_dir, check=True)
+        print("Deploying {} using '{}'...".format(self.name, self._deploy_script))
+        subprocess.run(self._deploy_script, cwd=self.working_dir, check=True)
         return True
 
     def print_status(self):
@@ -185,11 +185,11 @@ def main(argv):
             elusivebot.build_all()
         else:
             elusivebot.build(args.target)
-    elif args.command == 'image':
+    elif args.command == 'deploy':
         if args.all:
-            elusivebot.image_all()
+            elusivebot.deploy_all()
         else:
-            elusivebot.image(args.target)
+            elusivebot.deploy(args.target)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
