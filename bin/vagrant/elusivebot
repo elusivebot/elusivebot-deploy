@@ -68,7 +68,6 @@ class ElusiveBot:
             self._packages[name] = Package(PackageDefinition(name, priority=priority, dev=dev, prod=prod), src_dir, working_dir)
 
         # Core and utility packages
-        _define("elusivebot-deploy")
         _define("elusivebot-schema", priority=0)
         _define("elusivebot-kotlin-common", priority=1)
 
@@ -233,6 +232,8 @@ def main(argv):
             subprocess.run('./bin/dev/down', cwd=working_dir / 'elusivebot-deploy', check=True)
         else:
             raise NotImplementedError("Docker subcommand {}".format(args.docker))
+    elif args.command == 'bootstrap':
+        elusivebot.bootstrap()
     else:
         raise NotImplementedError("Unhandled command {}".format(args.command))
 
