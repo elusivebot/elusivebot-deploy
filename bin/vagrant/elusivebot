@@ -249,9 +249,10 @@ def main(argv):
             raise NotImplementedError("Docs subcommand {}".format(args.docs))
     elif args.command == 'docker':
         if args.docker == 'up':
-            subprocess.run('./bin/dev/up', cwd=working_dir / 'elusivebot-deploy', check=True)
+            subprocess.run(['./bin/dev/init', working_dir / 'elusivebot-deploy'], cwd=src_dir / 'elusivebot-deploy', check=True)
+            subprocess.run(['./bin/dev/up', working_dir / 'elusivebot-deploy'], cwd=src_dir / 'elusivebot-deploy', check=True)
         elif args.docker == 'down':
-            subprocess.run('./bin/dev/down', cwd=working_dir / 'elusivebot-deploy', check=True)
+            subprocess.run(['./bin/dev/down', working_dir / 'elusivebot-deploy'], cwd=src_dir / 'elusivebot-deploy', check=True)
         else:
             raise NotImplementedError("Docker subcommand {}".format(args.docker))
     elif args.command == 'bootstrap':

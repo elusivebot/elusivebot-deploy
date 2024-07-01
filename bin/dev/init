@@ -1,6 +1,10 @@
 #!/bin/bash
 
-BASE_DIR=$PWD/.deploy
+if [ ! -z "$1" ]; then
+	BASE_DIR=$1/.deploy
+else
+	BASE_DIR=$PWD/.deploy
+fi
 
 set -ex
 mkdir -p $BASE_DIR

@@ -5,7 +5,11 @@ if ! type docker >/dev/null ; then
     exit 1
 fi
 
-export BASE_DIR=$PWD/.deploy
+if [ ! -z "$1" ]; then
+	export BASE_DIR=$1/.deploy
+else
+	export BASE_DIR=$PWD/.deploy
+fi
 
 set -ex
-docker compose --project-name elusivebot-dev --file docker-compose.dev.yml down
+sudo --preserve-env=BASE_DIR docker compose --project-name elusivebot-dev --file docker-compose.dev.yml down
