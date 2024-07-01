@@ -145,6 +145,8 @@ def main(argv):
     subparser = parser.add_subparsers(dest='command')
 
     status_parser = subparser.add_parser("status", aliases=['ls'], help='Print status of ElusiveBot packages')
+    status_parser.add_argument('-d', '--assert-dev', action='store_true', help='Return non-zero if required dev packages are missing')
+    status_parser.add_argument('-p', '--assert-prod', action='store_true', help='Return non-zero if required prod packages are missing')
 
     init_parser = subparser.add_parser("init", aliases=['i'], help='Initialize ElusiveBot packages')
     init_parser.add_argument('-a', '--all', action='store_true', help='Init all packages')
@@ -195,6 +197,10 @@ def main(argv):
 
     if args.command == 'status':
         elusivebot.print_status()
+        if args.assert_dev and not elusivebot.dev_ready:
+            sys.exit(-1)
+        if args.assert_prod and not elusivebot.prod_ready:
+            sys.exit(-1)
     elif args.command == 'init':
         if args.all:
             elusivebot.init_all()
