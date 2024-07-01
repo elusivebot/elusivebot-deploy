@@ -176,6 +176,10 @@ def main(argv):
 
     args = parser.parse_args(argv)
 
+    if args.command is None:
+        parser.print_help()
+        return
+
     if args.dir:
         dev_dir = args.dir
 
