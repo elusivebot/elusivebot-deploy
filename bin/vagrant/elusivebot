@@ -99,6 +99,26 @@ class ElusiveBot:
         self.dev_ready = not self._dev_missing
         self.prod_ready = not self._prod_missing
 
+    def bootstrap(self):
+        if not self.dev_ready:
+            print("Unable to bootstrap: required dev packages are missing")
+            self.print_status()
+            sys.exit(-1)
+        prereqs = ['elusivebot-schema', 'elusivebot-kotlin-common']
+        for prereq in prereqs:
+            self.init([prereq])
+            self.build([prereq])
+            self.deploy([prereq])
+        prereqs = set(prereqs)
+        remaining = []
+        for name, package in self._packages.items():
+            if name in prereqs or not package.definition.dev: continue
+            remaining.append(name)
+
+        self.init(remaining)
+        self.build(remaining)
+        self.deploy(remaining)
+
     def build_all(self):
         self.build(packages=self._packages.keys())
 
@@ -174,6 +194,8 @@ def main(argv):
 
     up_parser = docker_subparser.add_parser('up', help='Launch the dev stack')
     down_parser = docker_subparser.add_parser('down', help='Terminate the dev stack')
+
+    bootstrap_parser = subparser.add_parser('bootstrap', help='Bootstrap the current environment')
 
     args = parser.parse_args(argv)
 
