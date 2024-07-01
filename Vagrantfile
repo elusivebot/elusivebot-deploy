@@ -8,7 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 apt-get upgrade -y
-apt-get install -y curl git dirmngr gpg gawk unzip jq ca-certificates graphviz tree silversearcher-ag bat
+apt-get install -y curl git dirmngr gpg gawk unzip jq ca-certificates graphviz tree silversearcher-ag bat htop unattended-upgrades
 apt-get remove -y docker.io docker-doc docker-compose podman-docker containerd runc
 
 sudo -H -u vagrant -i -- <<EOF
@@ -57,4 +57,15 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./bin/vagrant", "/vagrant_bin"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.provision "shell", inline: $script
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 4096
+	vb.cpus = 4
+  end
+  
+  config.vm.provider "hyperv" do |h|
+    h.memory = 4096
+	h.maxmemory = 4096
+	h.cpus = 4
+  end
 end
