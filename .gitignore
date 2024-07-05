@@ -3,3 +3,4 @@ local/kafka*
 .*.env
 .deploy
 .vagrant
+._*
