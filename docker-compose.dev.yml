@@ -37,8 +37,8 @@ services:
       - "SESSION_SECRET=keyboard cat"
       - "KAFKA_CLIENT_ID=http"
       - "KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
-      - "KAFKA_PRODUCER_TOPIC=http-input"
-      - "KAFKA_CONSUMER_TOPIC=http-output"
+      - "KAFKA_PRODUCER_TOPIC=messages-input"
+      - "KAFKA_CONSUMER_TOPIC=messages-output"
 
   pattern-match:
     image: docker.degrendel.com/elusivebot/pattern-match:latest
