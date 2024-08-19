@@ -8,6 +8,7 @@ echo "Waiting for kafka..."
 echo "Creating kafka topics"
 "$KT" --bootstrap-server localhost:9092 --create --if-not-exists --topic messages-input --replication-factor 1 --partitions 1
 "$KT" --bootstrap-server localhost:9092 --create --if-not-exists --topic messages-output --replication-factor 1 --partitions 1
+"$KT" --bootstrap-server localhost:9092 --create --if-not-exists --topic message-interpretations-output --replication-factor 1 --partitions 1
 
 echo "Successfully created the following topics:"
 "$KT" --bootstrap-server localhost:9092 --list
