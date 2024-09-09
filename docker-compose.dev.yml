@@ -58,6 +58,8 @@ services:
     image: docker.degrendel.com/elusivebot/frontend:latest
     container_name: 'elusivebot.frontend'
     restart: unless-stopped
+    ports:
+      - "80:80"
     depends_on:
       http:
         condition: service_started
