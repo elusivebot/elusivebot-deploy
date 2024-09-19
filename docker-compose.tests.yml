@@ -1,0 +1,58 @@
+include:
+- path:
+  - 'docker-compose.base.yml'
+  - 'override.tests.yml'
+services:
+  direct:
+    image: docker.degrendel.com/elusivebot/direct:latest
+    container_name: 'elusivebot.direct'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka
+    environment:
+      - "DIRECT_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "DIRECT_KAFKA_PRODUCERTOPIC=messages-input"
+      - "DIRECT_KAFKA_CONSUMERTOPIC=messages-output"
+      - "DIRECT_LISTEN_PORT=8001"
+      - "DIRECT_LISTEN_HOST=0.0.0.0"
+  http:
+    image: docker.degrendel.com/elusivebot/http:latest
+    container_name: 'elusivebot.http'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka
+    environment:
+      - "HTTP_LISTEN=0.0.0.0"
+      - "HTTP_PORT=8002"
+      - "SESSION_SECRET=keyboard cat"
+      - "KAFKA_CLIENT_ID=http"
+      - "KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "KAFKA_PRODUCER_TOPIC=messages-input"
+      - "KAFKA_CONSUMER_TOPIC=messages-output"
+
+  pattern-match:
+    image: docker.degrendel.com/elusivebot/pattern-match:latest
+    container_name: 'elusivebot.pattern.match'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka
+    environment:
+      - "PATTERNMATCH_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
+      - "PATTERNMATCH_KAFKA_PRODUCERTOPIC=messages-output"
+      - "PATTERNMATCH_KAFKA_CONSUMERTOPIC=messages-input"
+
+  frontend:
+    image: docker.degrendel.com/elusivebot/frontend:latest
+    container_name: 'elusivebot.frontend'
+    depends_on:
+      http:
+        condition: service_started
+
+  kafka:
+    restart: "no"
