@@ -5,6 +5,8 @@ include:
 services:
   direct:
     image: docker.degrendel.com/elusivebot/direct:latest
+    ports:
+      - "127.0.0.1:${ELUSIVEBOT_TCP_PORT}:${ELUSIVEBOT_TCP_PORT}"
     container_name: 'elusivebot.direct'
     depends_on:
       kafka:
@@ -15,11 +17,12 @@ services:
       - "DIRECT_KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
       - "DIRECT_KAFKA_PRODUCERTOPIC=messages-input"
       - "DIRECT_KAFKA_CONSUMERTOPIC=messages-output"
-      - "DIRECT_LISTEN_PORT=8001"
+      - "DIRECT_LISTEN_PORT=${ELUSIVEBOT_TCP_PORT:?Must set the TCP listen port}"
       - "DIRECT_LISTEN_HOST=0.0.0.0"
   http:
     image: docker.degrendel.com/elusivebot/http:latest
     container_name: 'elusivebot.http'
+      - "127.0.0.1:${ELUSIVEBOT_HTTP_PORT}:${ELUSIVEBOT_HTTP_PORT}"
     depends_on:
       kafka:
         condition: service_healthy
@@ -27,7 +30,7 @@ services:
       - kafka
     environment:
       - "HTTP_LISTEN=0.0.0.0"
-      - "HTTP_PORT=8002"
+      - "HTTP_PORT=${ELUSIVEBOT_HTTP_PORT?:Must set the HTTP listen port}"
       - "SESSION_SECRET=keyboard cat"
       - "KAFKA_CLIENT_ID=http"
       - "KAFKA_BOOTSTRAP=elusivebot.kafka:9092"
