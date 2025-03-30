@@ -1,4 +1,4 @@
-bin/** text eol=lf
+bin/**/* text eol=lf
 * text eol=auto
 
-kafka/bin/** text eol=lf
+kafka/bin/* text eol=lf
