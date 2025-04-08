@@ -6,27 +6,26 @@ set -ex
 
 export DEBIAN_FRONTEND=noninteractive
 
+wget -O /tmp/asdf.tgz https://github.com/asdf-vm/asdf/releases/download/v0.16.7/asdf-v0.16.7-linux-amd64.tar.gz
+tar -C /usr/local/bin -zxvf /tmp/asdf.tgz
+rm /tmp/asdf.tgz
+
 apt-get update
 apt-get upgrade -y
 apt-get install -y curl git dirmngr gpg gawk unzip jq ca-certificates graphviz tree silversearcher-ag bat htop unattended-upgrades
 apt-get remove -y docker.io docker-doc docker-compose podman-docker containerd runc
 
-sudo -H -u vagrant -i -- <<EOF
-	set -ex
-	echo 'PATH=$PATH:/vagrant_bin' >> ~/.profile
-	git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
-	echo . "~/.asdf/asdf.sh" >> ~/.profile
-	echo . "~/.asdf/completions/asdf.bash" >> ~/.profile
-EOF
 
 sudo -H -u vagrant -i -- <<EOF
-	set -ex
-	asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-	asdf plugin-add java https://github.com/halcyon/asdf-java.git
-	asdf install nodejs 20.15.0
-	asdf install java temurin-17.0.11+9
-	asdf global nodejs 20.15.0
-	asdf global java temurin-17.0.11+9
+  set -ex
+  echo 'export PATH="\\${ASDF_DATA_DIR:-\\$HOME/.asdf}/shims:\\$PATH:/vagrant_bin"' >> /home/vagrant/.bash_profile
+  echo '. <(asdf completion bash)' >> /home/vagrant/.bash_profile
+  asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+  asdf plugin add java https://github.com/halcyon/asdf-java.git
+  asdf install nodejs 22.14.0
+  asdf install java temurin-17.0.14+7
+  asdf set nodejs 22.14.0
+  asdf set java temurin-17.0.14+7
 EOF
 
 install -m 0755 -d /etc/apt/keyrings
